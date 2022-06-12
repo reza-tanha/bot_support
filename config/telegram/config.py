@@ -1,0 +1,3 @@
+
+CHANNEL_SPONSER = 'djdjfjewfhiowfwio1'
+ADMINS_LIST = [219171506, ]

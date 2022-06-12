@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ew3n0%94pwm6^z%3j5s-_#v72zdpesm-uqv1$@x-@wj6q%w+11
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'telegram.apps.TelegramConfig',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +122,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+TOKEN = '5050400232:AAEeEApl-0geyNvmjfvW0ciInIubAiNS8Ck'
+
+
+
+# CELERY STUFF
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Tehran'
