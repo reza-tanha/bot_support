@@ -15,6 +15,13 @@ class UserBot(models.Model):
         return self.name
 
 
+class SponserChannel(models.Model):
+    username = models.CharField(max_length=120, unique=True, verbose_name='Channel Username')
+    def __str__(self):
+        return self.username
+    
+
+
 class Message(models.Model):
     user = models.ForeignKey(UserBot, on_delete=models.CASCADE)
     message_id = models.IntegerField()

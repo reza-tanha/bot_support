@@ -18,35 +18,21 @@ def MessegeCallback(request, update):
     callback_id = update['callback_query']['id'] if "id" in update['callback_query'] else None
     callback_data = update['callback_query']['data'] if "data" in update['callback_query'] else None
     callback_message_message_id = update['callback_query']['message']['message_id'] if "message" in update['callback_query'] else None
-    callback_user_id = update['callback_query']['message']['from']['id'] if "message" in update['callback_query'] else None
-    callback_chat_id = update['callback_query']['message']['chat']['id'] if "message" in update['callback_query'] else None
-
-    # user_id_in = (array_key_exists('id',$update['callback_query']['from']))?$update['callback_query']['from']['id']:null;
-    # user_id_from_replay_in = (array_key_exists('id',$update['callback_query']['message']['reply_to_message']['from']))?$update['callback_query']['message']['reply_to_message']['from']['id']:null;
-    # chat_id_in = (array_key_exists('id',$update['callback_query']['message']['chat']))?$update['callback_query']['message']['chat']['id']:null;
-    # text_in = (array_key_exists('text',$update['callback_query']['message']))?$update['callback_query']['message']['text']:null;
-    # first_name_in = (array_key_exists('first_name',$update['callback_query']['from']))?$update['callback_query']['from']['first_name']:null;
-    # lastname_in  = (array_key_exists('last_name',$update['callback_query']['from']))?$update['callback_query']['from']['last_name']:null;
-    # username_in =  (array_key_exists('username',$update['callback_query']['from']))?$update['callback_query']['from']['username']:null;
-    # message_id_in = (array_key_exists('message_id',$update['callback_query']['message']))?$update['callback_query']['message']['message_id']:null;
-    # callback_in = (array_key_exists('data',$update['callback_query']))?$update['callback_query']['data']:null;
-    # callback_id_in = (array_key_exists('id',$update['callback_query']))?$update['callback_query']['id']:null;
-    # callback_text_in = (array_key_exists('text',$update['callback_query']['message']))?$update['callback_query']['message']['text']:null;
-    # callback_text_from_replay_in = (array_key_exists('text',$update['callback_query']['message']['reply_to_message']))?$update['callback_query']['message']['reply_to_message']['text']:null;
-    # callback_id_from_replay_in = (array_key_exists('id',$update['callback_query']['message']['reply_to_message']['from']))?$update['callback_query']['message']['reply_to_message']['from']['id']:null;
+    callback_user_id = update['callback_query']['from']['id'] if "message" in update['callback_query'] else None
 
 
     if "IS_JOIN_" in callback_data:
-        user_id_join = str(callback_data).split("_")[-1]
-        is_join = bot.user_Joined(f'@{CHANNEL_SPONSER}', user_id_join)
-        if is_join['result']['status'] == 'left':
-            print(is_join['result']['status'])
+        print(callback_user_id)
+        is_join = UserCheckSponsers_Task.delay(callback_user_id)
+        if not is_join.get():
             bot.send_AnswerCallbackQuery(callback_id, MESSAGES['MSG_CALLBACK_IS_JOIN'])
             return
-        bot.send_Message(user_id_join, MESSAGES['HOME_STEP_USER'], reply_markup=MainMenuUser())
-        bot.delete_Message(user_id_join, callback_message_message_id)
-        Set_Step(user_id_join, 'home')
+
+        bot.send_Message(callback_user_id, MESSAGES['HOME_STEP_USER'], reply_markup=MainMenuUser())
+        bot.delete_Message(callback_user_id, callback_message_message_id)
+        Set_Step(callback_user_id, 'home')
         return
+
 
     if "USER_SENDMSG_" in callback_data:
         data = str(callback_data).split("_")
@@ -60,6 +46,7 @@ def MessegeCallback(request, update):
             user.save()
             bot.send_AnswerCallbackQuery(callback_id, MESSAGES['MSG_CALLBACK_USER_BLOCKED'].format(data[-1]) )
         return
+
 
 @csrf_exempt
 def MessegeNormal(request, update):
@@ -79,9 +66,6 @@ def MessegeNormal(request, update):
     chat_type = update['message']['chat']['type'] if "type" in update['message']['chat'] else None
     message_id = update['message']['message_id'] if "message_id" in update['message'] else None
 
-
-
-
     try:
         reply_to_message_text = update['message']['reply_to_message']['text'] if "reply_to_message" in update['message'] else None
     except:
@@ -96,9 +80,14 @@ def MessegeNormal(request, update):
             username=update['message']['from']['username'],        
         )
 
-    is_join = bot.user_Joined("@"+CHANNEL_SPONSER, user_id)
-    if is_join['result']['status'] == 'left' and user_id not in ADMINS_LIST:
-        bot.send_Message(chat_id, MESSAGES['MSG_JOIN_MY_CHANNEL'], reply_markup=ButtomInline_isJoin(user_id))
+
+    is_join = UserCheckSponsers_Task.delay(user_id)
+    if not is_join.get() and user_id not in ADMINS_LIST:
+        sponsers = GetSponserChannel_Task.delay()
+        msg = MESSAGES['MSG_JOIN_MY_CHANNEL']
+        for sponser in sponsers.get():
+            msg=msg + f"🆔 @{sponser}\n"
+        bot.send_Message(chat_id, msg, reply_markup=ButtomInline_isJoin(user_id))
         return 
 
     
@@ -151,7 +140,6 @@ def MessegeNormal(request, update):
                 bot.send_Message(chat_id, MESSAGES['MSG_CUNTACT_US'], reply_markup=Back())
                 Set_Step(user_id, 'COUNTUCT_US')
                 return
-            
 
         case 'INSTA_DOWNLOAD':
             if text == 'بازگشت🏛':
@@ -168,10 +156,6 @@ def MessegeNormal(request, update):
                     return
 
                     
-
-
-
-
 
         case 'COUNTUCT_US':
             if text == 'بازگشت🏛':
@@ -193,41 +177,124 @@ def MessegeNormal(request, update):
         
     match step:
         case 'admin_home':
+
+            if text == 'users':
+                count = UsersBot_Count_Task.delay().get()
+                bot.send_Message(chat_id, MESSAGES['MSG_USERS_INFO_ADMIN'].format(count), parse_mode="HTML")
+                return
+
+            elif text == 'sponser':
+                sponsers = GetSponserChannel_Task.delay()
+                msg = MESSAGES['MSG_SPONSER_ADMIN']
+                for sponser in sponsers.get():
+                    msg=msg + f"🆔 @{sponser}\n"
+                bot.send_Message(chat_id, msg, reply_markup=SponserMenuAdmin())
+                Set_Step(user_id, 'SPONSER')
+                return
+
+            elif text == 'tabliq':
+                bot.send_Message(chat_id, MESSAGES['MSG_TABLIQ_MENU_ADMIN'], reply_markup=TabliqMenuAdmin())
+                Set_Step(user_id, 'TABLIQ_MENU')
+                return
             pass
 
+        case 'SPONSER':
+            if text == 'بازگشت🏛':
+                bot.send_Message(chat_id, MESSAGES['MSG_HOME_STEP_ADMIN'], reply_markup=MainMenuAdmin())
+                Set_Step(user_id, 'admin_home')
+                return
+
+            elif text == 'Add':
+                bot.send_Message(chat_id, MESSAGES['MSG_SPONSER_ADD_ADMIN'], reply_markup=Back())
+                Set_Step(user_id, 'SPONSER_ADD')
+                return
+            elif text == 'Del':
+                bot.send_Message(chat_id, MESSAGES['MSG_SPONSER_DEL_ADMIN'], reply_markup=Back())
+                Set_Step(user_id, 'SPONSER_DEL')
+                return
+            else:
+                return
+                
+        case 'SPONSER_ADD':
+            if text == 'بازگشت🏛':
+                sponsers = GetSponserChannel_Task.delay()
+                msg = MESSAGES['MSG_SPONSER_ADMIN']
+                for sponser in sponsers.get():
+                    msg=msg + f"🆔 @{sponser}\n"
+                bot.send_Message(chat_id, msg, reply_markup=SponserMenuAdmin())
+                Set_Step(user_id, 'SPONSER')
+                return    
+
+            text = str(text).replace('@', '').strip()
+            res = AddSponserChannel_Task.delay(text.lower())
+
+            if res.get():
+                bot.send_Message(chat_id, MESSAGES['MSG_ADD_SPONSER_SUCCESS_ADMIN'].format(text))
+                return
+            bot.send_Message(chat_id, MESSAGES['MSG_ADD_SPONSER_ERROE_ADMIN'].format(text))
+            return
 
             
-                
+        case 'SPONSER_DEL':
+            if text == 'بازگشت🏛':
+                sponsers = GetSponserChannel_Task.delay()
+                msg = MESSAGES['MSG_SPONSER_ADMIN']
+                for sponser in sponsers.get():
+                    msg=msg + f"🆔 @{sponser}\n"
+                bot.send_Message(chat_id, msg, reply_markup=SponserMenuAdmin())
+                Set_Step(user_id, 'SPONSER')
+                return
 
 
+            text = str(text).replace('@', '').strip()
+            res = DelSponserChannel_Task.delay(text.lower())
+
+            if res.get():
+                bot.send_Message(chat_id, MESSAGES['MSG_DEL_SPONSER_SUCCESS_ADMIN'].format(text))
+                return
+
+            bot.send_Message(chat_id, MESSAGES['MSG_SPONSER_NOT_FOUND_ADMIN'].format(text))
+            return
+
+        case 'TABLIQ_MENU':
+            if text == 'بازگشت🏛':
+                bot.send_Message(chat_id, MESSAGES['MSG_HOME_STEP_ADMIN'], reply_markup=MainMenuAdmin())
+                Set_Step(user_id, 'admin_home')
+                return
+            
+            elif text == 'Forward':            
+                bot.send_Message(chat_id, MESSAGES['MSG_TABLIQ_MENU_MSEGES_ADMIN'], reply_markup=Back())
+                Set_Step(user_id, 'TABLIQ_FORWARD_MENU')
+                return
+
+            elif text == 'Normal':
+                bot.send_Message(chat_id, MESSAGES['MSG_TABLIQ_MENU_MSEGES_ADMIN'], reply_markup=Back())
+                Set_Step(user_id, 'TABLIQ_NORMAL_MENU')
+                return
 
 
+        case 'TABLIQ_FORWARD_MENU':
+            is_forward = True if "forward_from_message_id" in update['message'] else None
 
+            if text == 'بازگشت🏛':
+                bot.send_Message(chat_id, MESSAGES['MSG_TABLIQ_MENU_ADMIN'], reply_markup=TabliqMenuAdmin())
+                Set_Step(user_id, 'TABLIQ_MENU')
+                return      
+            
+            elif is_forward:
+                Send_Tabliq_Forward_Task.delay(chat_id, user_id, message_id).forget()
+                bot.send_Message(chat_id, MESSAGES['MSG_TABLIQ_WAITING_ADMIN'])
+            return
 
+        case 'TABLIQ_NORMAL_MENU':
+            if text == 'بازگشت🏛':
+                bot.send_Message(chat_id, MESSAGES['MSG_TABLIQ_MENU_ADMIN'], reply_markup=TabliqMenuAdmin())
+                Set_Step(user_id, 'TABLIQ_MENU')
+                return   
 
-    # if text == '/admin':
-    #     bot = Telegram()
-    #     bot.send_Message(user_id, 'wellcom admin', reply_markup=MainMenuAdmin())
-    #     bot.send_Message(user_id, 'join', reply_markup=ButtomInline())
-        
-
-    # if text == '/start':
-    #     pass
-    #     # user = AddUser_db()
-
-
-        
-
-
-
-    #     user_info = GetUser_db(user_id)
-        
-
-    #     bot.send_Message(user_id, 'wellcom admin', reply_markup=MainMenuAdmin())
-    #     bot.send_Message(user_id, 'join', reply_markup=ButtomInline())
-        
-
-
+            Send_Tabliq_Normal_Task.delay(chat_id, user_id, message_id).forget()
+            bot.send_Message(chat_id, MESSAGES['MSG_TABLIQ_WAITING_ADMIN'])
+            return
  
 
 # @sync_to_async

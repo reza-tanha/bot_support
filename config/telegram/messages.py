@@ -1,8 +1,8 @@
 
 
 MESSAGES = {
-    'HOME_STEP_USER': 'به ربات پشتیبانی چنگیز خوش امدید . 🌹',
-    'MSG_JOIN_MY_CHANNEL': 'برای استفاده از ربات میبایست در کانال اسپانسری ما عضو باشید 🌹',
+    'HOME_STEP_USER': 'به ربات اینستا دانلودر خوش امدید . 🌹',
+    'MSG_JOIN_MY_CHANNEL': 'برای استفاده از ربات میبایست در کانال اسپانسری ما عضو باشید 🌹\n',
     'MSG_INSTA_DOWNLOAD_HOME': """●╔══ [ instagram Downloader ]
 ●╠  1️⃣  Post Downloader   
 ●╠═══ [ Normal Post
@@ -31,6 +31,16 @@ MESSAGES = {
     'MSG_CALLBACK_USER_BLOCKED':'کاربر {} ازاد شد ✅',
     'MSG_LINK_NOTVALID_BLOCKED':'لینک نامعتبر ⛔️',
     'MSG_LINKS_POSTS':'<a href="{}">.</a>',
-    
-
+    'MSG_USERS_INFO_ADMIN':'Users Count : <code>{}</code>',
+    'MSG_SPONSER_ADD_ADMIN':'To add a channel please send us your channel \nExample : @S3curity_Gray\n',
+    'MSG_SPONSER_DEL_ADMIN':'To delete a channel please send us your channel \nExample : @S3curity_Gray\n',
+    'MSG_SPONSER_ADMIN':'To add a channel please send us your channel \nExample : @S3curity_Gray\nSponser List Cannel : \n\n',
+    'MSG_ADD_SPONSER_SUCCESS_ADMIN':'Channel @{} Added Success ✅',
+    'MSG_DEL_SPONSER_SUCCESS_ADMIN':'Channel @{} Deleteed Success ✅',
+    'MSG_SPONSER_NOT_FOUND_ADMIN':'Channel @{} Not Found In Sponser List ⛔️',
+    'MSG_ADD_SPONSER_ERROE_ADMIN':'Channel @{} Exists ⛔️',
+    'MSG_TABLIQ_MENU_ADMIN':'Choose One of The Advertisements',
+    'MSG_TABLIQ_MENU_MSEGES_ADMIN':'Send Me Your Advertisements',
+    'MSG_TABLIQ_SENDEID_SUCCESS_ADMIN':'Advertisements End ✅',
+    'MSG_TABLIQ_WAITING_ADMIN':'Please Waite Advertise Sended Soon ⏳',
 }
