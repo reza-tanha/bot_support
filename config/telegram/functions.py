@@ -1,6 +1,4 @@
-from ast import Try
 from time import sleep
-
 from .messages import MESSAGES
 from .telMethod import Telegram
 import json
@@ -16,7 +14,6 @@ def MainMenuUser():
             ],
             'resize_keyboard':True
     }
-    
     return json.dumps(markup)
 
     
@@ -29,7 +26,6 @@ def MainMenuAdmin():
             ],
             'resize_keyboard':True
     }
-    
     return json.dumps(markup)
     
 def SponserMenuAdmin():
@@ -40,7 +36,6 @@ def SponserMenuAdmin():
             ],
             'resize_keyboard':True
     }
-    
     return json.dumps(markup)
     
 
@@ -114,7 +109,6 @@ def Send_Tabliq_Normal(chat_id, from_chat_id, message_id):
 #==========
 #Database Function
 def AddUser_db(user_id, name=None,lastname=None, username=None):
-    # try:
         user = UserBot.objects.create(
             user_id=user_id,
             name=name,
@@ -125,10 +119,8 @@ def AddUser_db(user_id, name=None,lastname=None, username=None):
             tab=False
         )
         user.save()
-        # print(user)
         return user
-    # except:
-    #     return False
+
 
 def GetUser_db(user_id):
     user = UserBot.objects.filter(user_id=user_id).first()
@@ -172,7 +164,6 @@ def UserCheckSponsers(user_id):
     bot = Telegram()
     sponsers = GetSponsers()
     for sponser in sponsers:
-        # print(sponser)
         is_join = bot.user_Joined("@"+sponser, user_id)
         if is_join['result']['status'] == 'left':
             return False

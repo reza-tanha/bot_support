@@ -1,20 +1,20 @@
-from django.conf import settings
+import config
 import requests
 import json
 
 class Telegram:
     def bot(self, telegram_method, data , method='GET', file=None):
         proxy_s = {
-            "https": '192.168.138.200:8081',
-            "http": '192.168.138.200:8081'
+            "https": config.PROXY_HTTP,
+            "http": config.PROXY_HTTP
         }
         if method == 'GET':
-            request = requests.get('https://api.telegram.org/bot' + settings.TOKEN+ "/" + telegram_method,
+            request = requests.get('https://api.telegram.org/bot' + config.TOKEN+ "/" + telegram_method,
                  params=data, proxies=proxy_s
                  )
             return json.loads(request.text)
         else:
-            request = requests.post('https://api.telegram.org/bot' + settings.TOKEN+ "/" + telegram_method , data=data)
+            request = requests.post('https://api.telegram.org/bot' + config.TOKEN+ "/" + telegram_method , data=data)
             return json.loads(request.text)
                         
 

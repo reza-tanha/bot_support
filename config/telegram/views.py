@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-import requests
 import json
 from .telMethod import Telegram
 # from asgiref.sync import async_to_sync, sync_to_async
