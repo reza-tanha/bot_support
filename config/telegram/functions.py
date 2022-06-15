@@ -3,8 +3,7 @@ from .messages import MESSAGES
 from .telMethod import Telegram
 import json
 from .models import UserBot, SponserChannel
-from .config import *
-
+from telegram.confbot import *
 
 
 def MainMenuUser():
@@ -162,9 +161,13 @@ def DelSponsers(username):
 
 def UserCheckSponsers(user_id):
     bot = Telegram()
+    # print(bot)
     sponsers = GetSponsers()
+    # print(sponsers)
     for sponser in sponsers:
         is_join = bot.user_Joined("@"+sponser, user_id)
+        # print(is_join)
+        return
         if is_join['result']['status'] == 'left':
             return False
     return True

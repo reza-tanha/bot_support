@@ -6,12 +6,12 @@ from django.conf import settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 app = Celery('config')
 
-class MyTask(Task):
+# class MyTask(Task):
 
-    def __call__(self, *args ,**kwargs):
-        return self.run( *args **kwargs) 
+#     def __call__(self, *args ,**kwargs):
+#         return self.run( *args **kwargs) 
 
-app.Task = MyTask
+# app.Task = MyTask
 
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

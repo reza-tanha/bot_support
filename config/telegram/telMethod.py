@@ -1,20 +1,28 @@
-import config
+from telegram.confbot import *
 import requests
 import json
 
+
 class Telegram:
     def bot(self, telegram_method, data , method='GET', file=None):
+
         proxy_s = {
-            "https": config.PROXY_HTTP,
-            "http": config.PROXY_HTTP
+            "https": PROXY_HTTP,
+            "http": PROXY_HTTP
         }
+        if PROXY_SOCKS:
+            proxy_s = {
+                "socks5h://": PROXY_SOCKS,
+                "socks5h://": PROXY_SOCKS
+            }
+
         if method == 'GET':
-            request = requests.get('https://api.telegram.org/bot' + config.TOKEN+ "/" + telegram_method,
+            request = requests.get('https://api.telegram.org/bot' + TOKEN+ "/" + telegram_method,
                  params=data, proxies=proxy_s
                  )
             return json.loads(request.text)
         else:
-            request = requests.post('https://api.telegram.org/bot' + config.TOKEN+ "/" + telegram_method , data=data)
+            request = requests.post('https://api.telegram.org/bot' + TOKEN+ "/" + telegram_method , data=data)
             return json.loads(request.text)
                         
 
@@ -360,4 +368,5 @@ class Telegram:
             }
 
         result = self.bot("getChatMember", params, method)
+        # print(result)
         return result

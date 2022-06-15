@@ -4,7 +4,7 @@ import re
 from .telMethod import Telegram
 from .functions import *
 from .messages import MESSAGES
-from .config import *
+from .confbot import *
 
 def Post_Download(link, user_id, message_id):
     bot = Telegram()

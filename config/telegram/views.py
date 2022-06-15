@@ -5,7 +5,7 @@ from .telMethod import Telegram
 # from asgiref.sync import async_to_sync, sync_to_async
 from .functions import *
 from .messages import MESSAGES
-from .config import *
+from .confbot import *
 import re
 from .instagram import Post_Download
 from .tasks import *
@@ -21,9 +21,8 @@ def MessegeCallback(request, update):
 
 
     if "IS_JOIN_" in callback_data:
-        print(callback_user_id)
-        is_join = UserCheckSponsers_Task.delay(callback_user_id)
-        if not is_join.get():
+        is_join = UserCheckSponsers(callback_user_id)
+        if not is_join:
             bot.send_AnswerCallbackQuery(callback_id, MESSAGES['MSG_CALLBACK_IS_JOIN'])
             return
 
@@ -80,17 +79,19 @@ def MessegeNormal(request, update):
         )
 
 
-    is_join = UserCheckSponsers_Task.delay(user_id)
-    if not is_join.get() and user_id not in ADMINS_LIST:
-        sponsers = GetSponserChannel_Task.delay()
+    is_join = UserCheckSponsers(user_id)
+    # print(is_join)
+    if not is_join and user_id not in ADMINS_LIST:
+        sponsers = GetSponsers()
         msg = MESSAGES['MSG_JOIN_MY_CHANNEL']
-        for sponser in sponsers.get():
+        for sponser in sponsers:
             msg=msg + f"🆔 @{sponser}\n"
         bot.send_Message(chat_id, msg, reply_markup=ButtomInline_isJoin(user_id))
         return 
 
     
     if text == '/start' and chat_type == 'private':
+
         bot.send_Message(chat_id, MESSAGES['HOME_STEP_USER'], reply_markup=MainMenuUser())
         Set_Step(user_id, 'home')
         return
@@ -178,14 +179,14 @@ def MessegeNormal(request, update):
         case 'admin_home':
 
             if text == 'users':
-                count = UsersBot_Count_Task.delay().get()
+                count = UsersBot_count()
                 bot.send_Message(chat_id, MESSAGES['MSG_USERS_INFO_ADMIN'].format(count), parse_mode="HTML")
                 return
 
             elif text == 'sponser':
-                sponsers = GetSponserChannel_Task.delay()
+                sponsers = GetSponsers()
                 msg = MESSAGES['MSG_SPONSER_ADMIN']
-                for sponser in sponsers.get():
+                for sponser in sponsers:
                     msg=msg + f"🆔 @{sponser}\n"
                 bot.send_Message(chat_id, msg, reply_markup=SponserMenuAdmin())
                 Set_Step(user_id, 'SPONSER')
@@ -216,18 +217,18 @@ def MessegeNormal(request, update):
                 
         case 'SPONSER_ADD':
             if text == 'بازگشت🏛':
-                sponsers = GetSponserChannel_Task.delay()
+                sponsers = GetSponsers()
                 msg = MESSAGES['MSG_SPONSER_ADMIN']
-                for sponser in sponsers.get():
+                for sponser in sponsers:
                     msg=msg + f"🆔 @{sponser}\n"
                 bot.send_Message(chat_id, msg, reply_markup=SponserMenuAdmin())
                 Set_Step(user_id, 'SPONSER')
                 return    
 
             text = str(text).replace('@', '').strip()
-            res = AddSponserChannel_Task.delay(text.lower())
+            res = AddSponsers(text.lower())
 
-            if res.get():
+            if res:
                 bot.send_Message(chat_id, MESSAGES['MSG_ADD_SPONSER_SUCCESS_ADMIN'].format(text))
                 return
             bot.send_Message(chat_id, MESSAGES['MSG_ADD_SPONSER_ERROE_ADMIN'].format(text))
@@ -236,9 +237,9 @@ def MessegeNormal(request, update):
             
         case 'SPONSER_DEL':
             if text == 'بازگشت🏛':
-                sponsers = GetSponserChannel_Task.delay()
+                sponsers = GetSponsers()
                 msg = MESSAGES['MSG_SPONSER_ADMIN']
-                for sponser in sponsers.get():
+                for sponser in sponsers:
                     msg=msg + f"🆔 @{sponser}\n"
                 bot.send_Message(chat_id, msg, reply_markup=SponserMenuAdmin())
                 Set_Step(user_id, 'SPONSER')
@@ -246,9 +247,9 @@ def MessegeNormal(request, update):
 
 
             text = str(text).replace('@', '').strip()
-            res = DelSponserChannel_Task.delay(text.lower())
+            res = DelSponsers(text.lower())
 
-            if res.get():
+            if res:
                 bot.send_Message(chat_id, MESSAGES['MSG_DEL_SPONSER_SUCCESS_ADMIN'].format(text))
                 return
 
