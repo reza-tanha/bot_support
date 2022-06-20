@@ -4,4 +4,5 @@ from .views import *
 app_name = 'telegram'
 urlpatterns = [
     path('', update, name='telegram'),
+    path('test', testurl, name='test'),
 ]

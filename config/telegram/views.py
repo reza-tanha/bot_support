@@ -1,6 +1,8 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+
+from httplib2 import Response
 from .telMethod import Telegram
 # from asgiref.sync import async_to_sync, sync_to_async
 from .functions import *
@@ -9,6 +11,10 @@ from .confbot import *
 import re
 from .instagram import Post_Download
 from .tasks import *
+
+
+def testurl(request):
+    return HttpResponse("good 200")
 
 @csrf_exempt
 def MessegeCallback(request, update):

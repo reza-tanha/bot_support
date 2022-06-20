@@ -5,3 +5,7 @@ mysqlclient==2.1.0
 redis==4.3.3
 requests==2.28.0
 django-environ
+psycopg==3.0.13
+psycopg2-binary==2.9.3
+gunicorn
+httplib2
