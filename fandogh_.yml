@@ -1,11 +1,9 @@
 kind: ExternalService
 name: insta-bot
 spec:
-  image: insta-bot:1.1
+  image: insta-bot:1.0
   image_pull_policy: Always
-  port: 80
-  media_path: "media"
-  static_path: static_root
+  port: 80  
   command:
   - sh
   - entrypoint.sh

@@ -87,7 +87,7 @@ def MessegeNormal(request, update):
 
     is_join = UserCheckSponsers(user_id)
     # print(is_join)
-    if not is_join and user_id not in ADMINS_LIST:
+    if not is_join:
         sponsers = GetSponsers()
         msg = MESSAGES['MSG_JOIN_MY_CHANNEL']
         for sponser in sponsers:
@@ -109,29 +109,7 @@ def MessegeNormal(request, update):
 
     if reply_to_message_message_id:
         user_id_sender_msg = re.findall(r'user\sid\s:\s(\d*)\nname\s:\s.*', reply_to_message_text)
-        if text:
-            bot.send_Message(user_id_sender_msg[0], text, disable_web_page_preview=True)
-
-        elif photo_file_id:
-            bot.send_Photo(user_id_sender_msg[0], photo_file_id, disable_web_page_preview=True)
-
-        elif document_file_id:
-            bot.send_Document(user_id_sender_msg[0], document_file_id, disable_web_page_preview=True)
-        
-        elif document_file_id:
-            bot.send_Document(user_id_sender_msg[0], document_file_id, disable_web_page_preview=True)
-        
-        elif video_file_id:
-            bot.send_Video(user_id_sender_msg[0], video_file_id, disable_web_page_preview=True)
-        
-        elif audio_file_id:
-            bot.send_Audio(user_id_sender_msg[0], audio_file_id, disable_web_page_preview=True)
-
-        elif voice_file_id:
-            bot.send_Voice(user_id_sender_msg[0], voice_file_id, disable_web_page_preview=True)
-
-        else :
-            return
+        bot.copy_Message(user_id_sender_msg[0], user_id, message_id)
         return
 
     step = user_info.step

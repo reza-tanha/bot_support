@@ -166,8 +166,6 @@ def UserCheckSponsers(user_id):
     # print(sponsers)
     for sponser in sponsers:
         is_join = bot.user_Joined("@"+sponser, user_id)
-        # print(is_join)
-        return
         if is_join['result']['status'] == 'left':
             return False
     return True
